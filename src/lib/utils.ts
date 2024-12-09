@@ -39,25 +39,26 @@ export function uriToFilePath(record: WARCRecord) {
 		throw new Error("WARC-Target-URI header is required");
 	}
 
-    // replace multiple slashes with a single slash
+	// replace multiple slashes with a single slash
 	uri = uri.replace(/\/+/g, "/");
 
 	// if no extension, use `__index__` as filename and content type to determine the extension
-	if (uri.endsWith("/")) {
-        const contentType = record.httpHeaders?.headers.get("Content-Type") || "text/html";
-        const extension = mime.extension(contentType);
-		uri += `__index__.${extension}`;
+	if (uri.endsWith("/") || !uri.split("/")[uri.split("/").length - 1].includes(".")) {
+		uri = uri.replace(/\/$/, "")
+		const contentType = record.httpHeaders?.headers.get("Content-Type") || "text/html";
+		const extension = mime.extension(contentType);
+		uri += `/__index__.${extension}`;
 	} else {
-                // constrain the length of the filename to 255 characters
-                const uriParts = uri.split("/");
-                const filename = uriParts[uriParts.length - 1];
-                if (filename.length > 255) {
-                        const prefix = filename.slice(0, 190)
-                        const suffix = filename.slice(190)
-                        const hash = createHash('sha256').update(suffix).digest('hex');
-                        uri = uriParts.slice(0, -1).concat([`${prefix}_${hash}`]).join("/");
-                }
-        }
+		// constrain the length of the filename to 255 characters
+		const uriParts = uri.split("/");
+		const filename = uriParts[uriParts.length - 1];
+		if (filename.length > 255) {
+			const prefix = filename.slice(0, 190)
+			const suffix = filename.slice(190)
+			const hash = createHash('sha256').update(suffix).digest('hex');
+			uri = uriParts.slice(0, -1).concat([`${prefix}_${hash}`]).join("/");
+		}
+	}
     
 	return uri;
 }

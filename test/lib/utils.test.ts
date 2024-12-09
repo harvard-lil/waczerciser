@@ -32,6 +32,10 @@ test("utils.uriToFilePath", async (t) => {
 			uri: "https://example.com/path/",
 			expected: "https:/example.com/path/__index__.html",
 		},
+		{
+			uri: "https://example.com/path",
+			expected: "https:/example.com/path/__index__.html",
+		},
 		{ uri: "file:///path/page.html", expected: "file:/path/page.html" },
 	];
 
